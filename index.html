@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2e7d32">
+<title>English Fun Cards</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#eef7ef;color:#263238}
+header{background:#fff;padding:18px;text-align:center;box-shadow:0 2px 10px #0002}h1{margin:0;color:#2e7d32;font-size:28px}
+main{max-width:720px;margin:auto;padding:16px}.page{display:none}.page.active{display:block}
+.panel{background:#fff;border-radius:24px;padding:20px;box-shadow:0 5px 18px #0002;margin-bottom:16px;text-align:center}
+button{border:0;border-radius:16px;padding:14px 18px;font-size:17px;font-weight:700;background:#2e7d32;color:white;margin:5px;touch-action:manipulation}
+.blue{background:#1976d2}.orange{background:#ef6c00}.gray{background:#eceff1;color:#263238}
+.memory{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:600px;margin:18px auto}
+.card{aspect-ratio:1;border:0;padding:0;margin:0;background:transparent;perspective:800px}
+.inner{height:100%;width:100%;position:relative;transform-style:preserve-3d;transition:transform .35s}
+.card.open .inner,.card.done .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px #0002}
+.cover{background:linear-gradient(135deg,#66bb6a,#2e7d32);color:#fff;font-size:36px}
+.reveal{background:#fff;transform:rotateY(180deg);font-size:clamp(18px,5vw,30px);font-weight:800;color:#1976d2}
+.emoji{font-size:clamp(48px,13vw,85px)}.stats{font-weight:700;margin:10px}.message{min-height:30px;font-weight:700}
+.learn{font-size:34px;font-weight:800}.learn .answer{color:#1976d2;margin-top:15px}.example{font-size:19px;margin-top:12px}
+.quizword{font-size:40px;font-weight:800;color:#1976d2;margin:20px}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.choice{background:#fff;color:#263238;border:3px solid #bbdefb;min-height:110px}.choice .emoji{display:block}
+@media(max-width:520px){.choices{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>🌱 English Fun Cards 🍓</h1><div>Aprender inglés jugando</div></header>
+<main>
+<div id="home" class="page active"><div class="panel">
+<div class="emoji">🎮🧠</div><h2>¡Vamos a jugar!</h2>
+<button onclick="page('learn')">📚 Aprender</button><button class="blue" onclick="page('memory')">🧠 Memorama</button><button class="orange" onclick="page('quiz')">⭐ Quiz</button>
+</div></div>
+
+<div id="learn" class="page"><div class="panel"><h2>📚 Tarjetas</h2><div id="learnBox"></div>
+<button class="gray" onclick="prev()">⬅️</button><button class="blue" onclick="answer()">👀 Ver inglés</button><button onclick="next()">➡️</button>
+<p id="count"></p><button class="blue" onclick="page('memory')">🧠 Memorama</button></div></div>
+
+<div id="memory" class="page"><div class="panel"><h2>🧠 Memorama</h2><p>Encuentra las parejas: palabra en inglés ↔ imagen.</p>
+<button onclick="newGame(3)">3 parejas</button><button class="blue" onclick="newGame(5)">5 parejas</button><button class="orange" onclick="newGame(10)">10 parejas</button>
+<div class="stats">⭐ Parejas: <span id="pairs">0</span> · 👆 Movimientos: <span id="moves">0</span></div>
+<div id="msg" class="message"></div><div id="grid" class="memory"></div>
+<button class="gray" onclick="page('home')">🏠 Menú</button></div></div>
+
+<div id="quiz" class="page"><div class="panel"><h2>⭐ Quiz</h2><div id="qw" class="quizword"></div><div id="choices" class="choices"></div><div id="qm" class="message"></div>
+<button class="blue" onclick="quiz()">Nueva pregunta</button><button class="gray" onclick="page('home')">🏠 Menú</button></div></div>
+</main>
+
+<script>
+const D=[
+["Lechuga","lettuce","I eat lettuce in my salad.","🥬"],["Espárragos","asparagus","I like asparagus.","🌱"],
+["Tomate","tomato","The tomato is red.","🍅"],["Brócoli","broccoli","Broccoli is green.","🥦"],
+["Espinaca","spinach","I eat spinach.","🌿"],["Naranja","orange","I eat an orange.","🍊"],
+["Manzana","apple","I have an apple.","🍎"],["Melón verde","honeydew melon","The honeydew melon is sweet.","🍈"],
+["Melocotón","peach","The peach is soft.","🍑"],["Fresa","strawberry","I like strawberries.","🍓"]];
+function page(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");if(id==="learn")renderLearn();if(id==="memory"&&!started)newGame(3);if(id==="quiz")quiz();scrollTo(0,0)}
+let li=0,showAnswer=false;
+function renderLearn(){let x=D[li];document.getElementById("learnBox").innerHTML=`<div class="emoji">${x[3]}</div><div class="learn">${x[0]}</div>${showAnswer?`<div class="answer">${x[1]}</div><div class="example">“${x[2]}”</div>`:"<p>🤔 Intenta decirla en inglés.</p>"}`;document.getElementById("count").textContent=`${li+1} de ${D.length}`}
+function answer(){showAnswer=!showAnswer;renderLearn()}function next(){li=(li+1)%D.length;showAnswer=false;renderLearn()}function prev(){li=(li-1+D.length)%D.length;showAnswer=false;renderLearn()}
+
+let deck=[],first=-1,lock=false,moves=0,pairs=0,started=false;
+function newGame(n){let a=[...D].sort(()=>Math.random()-.5).slice(0,n);deck=[];a.forEach((x,id)=>{deck.push({id,t:"w",v:x[1],e:x[3]});deck.push({id,t:"i",v:x[1],e:x[3]})});deck.sort(()=>Math.random()-.5);first=-1;lock=false;moves=0;pairs=0;started=true;document.getElementById("pairs").textContent=0;document.getElementById("moves").textContent=0;document.getElementById("msg").textContent="¡Encuentra una pareja! 🎯";let g=document.getElementById("grid");g.innerHTML="";deck.forEach((c,i)=>{let b=document.createElement("button");b.className="card";b.innerHTML=`<div class="inner"><div class="face cover">❓</div><div class="face reveal">${c.t==="w"?c.v:"<span class='emoji'>"+c.e+"</span>"}</div></div>`;b.onclick=()=>pick(i,b);g.appendChild(b)})}
+function pick(i,b){if(lock||deck[i].done||i===first)return;b.classList.add("open");if(first<0){first=i;return}let second=i;moves++;document.getElementById("moves").textContent=moves;lock=true;if(deck[first].id===deck[second].id){let a=first,c=second;deck[a].done=deck[c].done=true;setTimeout(()=>{document.querySelectorAll(".card")[a].classList.add("done");document.querySelectorAll(".card")[c].classList.add("done");pairs++;document.getElementById("pairs").textContent=pairs;first=-1;lock=false;document.getElementById("msg").textContent=pairs===deck.length/2?`🎉 ¡Ganaste! ${moves} movimientos.`:"✅ ¡Pareja encontrada!";},380)}else{let a=first,c=second;setTimeout(()=>{document.querySelectorAll(".card")[a].classList.remove("open");document.querySelectorAll(".card")[c].classList.remove("open");first=-1;lock=false;document.getElementById("msg").textContent="💡 No coinciden. ¡Recuerda sus lugares!";},800)}}
+
+let qs=-1,score=0;
+function quiz(){qs=Math.floor(Math.random()*D.length);let correct=D[qs];document.getElementById("qw").textContent=correct[1];document.getElementById("qm").textContent="";let opts=[correct,...D.filter((_,i)=>i!==qs).sort(()=>Math.random()-.5).slice(0,2)].sort(()=>Math.random()-.5),box=document.getElementById("choices");box.innerHTML="";opts.forEach(x=>{let b=document.createElement("button");b.className="choice";b.innerHTML=`<span class="emoji">${x[3]}</span>${x[0]}`;b.onclick=()=>{if(x===correct){b.style.background="#c8e6c9";score++;document.getElementById("qm").textContent="🎉 ¡Correcto!";setTimeout(quiz,600)}else{b.style.background="#ffcdd2";document.getElementById("qm").textContent="🤔 Intenta otra."}};box.appendChild(b)})}
+renderLearn();newGame(3);
+</script>
+</body></html>
